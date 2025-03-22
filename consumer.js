@@ -1,7 +1,6 @@
 const { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client-sqs');
 const User = require('./models/User');
 const Messages = require('./models/Messages');
-const connectedUsers = require('./connectedUsers');
 const { getIO } = require('./socket');
 
 require('dotenv').config();
@@ -10,7 +9,6 @@ const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
 const QUEUE_URL = process.env.SQS_QUEUE_URL;
 
 let isRunning = true;
-
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const processMessage = async (messageBody) => {
@@ -30,11 +28,9 @@ const processMessage = async (messageBody) => {
 
     await message.save();
 
-    const receiverSocketId = connectedUsers.get(message.receiver);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('message', message);
-      console.log(`Message sent to user ${message.receiver} via socket ${receiverSocketId}`);
-    }
+    // Broadcast to room (works across pods!)
+    io.to(`user:${message.receiver}`).emit('message', message);
+    console.log(`✅ Message sent to user ${message.receiver} via Socket.IO room`);
   } catch (error) {
     console.error('❌ Error processing message:', error);
   }
@@ -45,7 +41,7 @@ const pollOnce = async () => {
     const data = await sqsClient.send(
       new ReceiveMessageCommand({
         QueueUrl: QUEUE_URL,
-        WaitTimeSeconds: 10, // Long polling
+        WaitTimeSeconds: 10,
         MaxNumberOfMessages: 10,
       })
     );
@@ -67,12 +63,11 @@ const pollOnce = async () => {
         console.log(`✅ Deleted message: ${message.MessageId || 'unknown'}`);
       }
     } else {
-      // Optional: quiet log
-      console.log('No messages received');
+      console.log('🕑 No messages received');
     }
   } catch (err) {
     console.error('❌ Error polling SQS:', err.message);
-    await sleep(3000); // Add backoff on error
+    await sleep(3000);
   }
 };
 
@@ -83,7 +78,6 @@ module.exports = async function startPolling() {
   }
 };
 
-// Optional: clean shutdown
 process.on('SIGINT', () => {
   console.log('🛑 Gracefully shutting down SQS poller...');
   isRunning = false;
