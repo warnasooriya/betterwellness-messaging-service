@@ -8,7 +8,6 @@ const corsOptions = require('./config/corsOptions');
 const startPolling = require('./consumer');
 const app = express();
 const port = process.env.PORT || 5003;
-const { Server } = require('socket.io');
 const { initSocket } = require('./socket');
 
 
@@ -37,7 +36,7 @@ app.use("/api", messageRouter);
  
 
 // Start single HTTP server
-server.listen(port, () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Server is running on port ${port}`);
   startPolling();
 });
