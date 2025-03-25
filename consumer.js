@@ -63,7 +63,7 @@ const pollOnce = async () => {
         console.log(`✅ Deleted message: ${message.MessageId || 'unknown'}`);
       }
     } else {
-      console.log('🕑 No messages received');
+      // console.log('🕑 No messages received');
     }
   } catch (err) {
     console.error('❌ Error polling SQS:', err.message);
