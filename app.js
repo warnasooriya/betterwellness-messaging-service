@@ -14,7 +14,8 @@ const requestLogger = require('./middleware/requestLogger');
 const errorLogger = require('./middleware/errorLogger');
 
 // Middleware
-app.use(cors(corsOptions));
+app.use(cors());
+app.options('*', cors()); // Handle preflight requests
 app.use(bodyParser.json());
 
 app.use(express.json());
@@ -36,8 +37,15 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Import and use your routes, pass io and connectedUsers to router
 const messageRouter = require("./routes/messageRouter");
-app.use("/api", messageRouter);
+app.use("/messaging", messageRouter);
 
+app.get('/messaging/health', (req, res) => {
+  res.json({ status: 'ok', traceId: req.traceId });
+});
+
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', traceId: req.traceId });
+});
  
 app.use(errorLogger);
 

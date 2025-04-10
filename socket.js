@@ -19,6 +19,41 @@ const initSocket = async (server) => {
   const pubClient = redis.createClient({ url: `redis://${REDIS_HOST}:${REDIS_PORT}` });
   const subClient = pubClient.duplicate();
 
+
+    // Attach event handlers for Redis clients
+    pubClient.on('connect', () => {
+      console.log('🔌 Redis pubClient connecting...');
+    });
+  
+    pubClient.on('ready', () => {
+      console.log('✅ Redis pubClient connected and ready');
+    });
+  
+    pubClient.on('error', (err) => {
+      console.error('❗ Redis pubClient error:', err);
+    });
+  
+    pubClient.on('reconnecting', () => {
+      console.warn('♻️ Redis pubClient reconnecting...');
+    });
+  
+    subClient.on('connect', () => {
+      console.log('🔌 Redis subClient connecting...');
+    });
+  
+    subClient.on('ready', () => {
+      console.log('✅ Redis subClient connected and ready');
+    });
+  
+    subClient.on('error', (err) => {
+      console.error('❗ Redis subClient error:', err);
+    });
+  
+    subClient.on('reconnecting', () => {
+      console.warn('♻️ Redis subClient reconnecting...');
+    });
+    
+
   await pubClient.connect();
   await subClient.connect();
   console.log(`🔗 Redis adapter connected at ${REDIS_HOST}:${REDIS_PORT}`);
