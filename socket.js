@@ -16,7 +16,7 @@ const initSocket = async (server) => {
     },
   });
 
-  const pubClient = redis.createClient({ url: `redis://${REDIS_HOST}:${REDIS_PORT}` });
+  const pubClient = redis.createClient({ url: `rediss://${REDIS_HOST}:${REDIS_PORT}` });
   const subClient = pubClient.duplicate();
 
 
@@ -52,7 +52,7 @@ const initSocket = async (server) => {
     subClient.on('reconnecting', () => {
       console.warn('♻️ Redis subClient reconnecting...');
     });
-    
+
 
   await pubClient.connect();
   await subClient.connect();
