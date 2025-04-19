@@ -3,8 +3,7 @@ const redis = require('redis');
 const { createAdapter } = require('@socket.io/redis-adapter');
 const { sendMessage } = require('./producer');
 
-const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
-const REDIS_PORT = process.env.REDIS_PORT || 6379;
+const REDIS_HOST = process.env.REDIS_HOST || 'localhost:6379';
 
 let io;
 
@@ -16,7 +15,7 @@ const initSocket = async (server) => {
     },
   });
 
-  const pubClient = redis.createClient({ url: `rediss://${REDIS_HOST}:${REDIS_PORT}` });
+  const pubClient = redis.createClient({ url: `${REDIS_HOST}` });
   const subClient = pubClient.duplicate();
 
 
