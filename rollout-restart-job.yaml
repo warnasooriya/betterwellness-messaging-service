@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rollout-restart-messaging
+spec:
+  ttlSecondsAfterFinished: 60  # Job and Pod deleted 60s after completion
+  template:
+    spec:
+      serviceAccountName: deployer  # This SA must have permissions
+      containers:
+        - name: kubectl
+          image: bitnami/kubectl:latest
+          command: ["sh", "-c"]
+          args:
+            - kubectl rollout restart deployment betterwellness-messaging
+      restartPolicy: Never
