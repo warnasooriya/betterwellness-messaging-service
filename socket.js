@@ -55,7 +55,7 @@ const initSocket = async (server) => {
 
   await pubClient.connect();
   await subClient.connect();
-  console.log(`🔗 Redis adapter connected at ${REDIS_HOST}:${REDIS_PORT}`);
+  console.log(`🔗 Redis adapter connected at ${REDIS_HOST}`);
 
   io.adapter(createAdapter(pubClient, subClient));
 
